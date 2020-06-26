@@ -1,0 +1,187 @@
+installing infamdm on mssql server. 
+
+1. Install the mssql 
+2. enable the xa transaction
+3. enable the sna lu 6.2 transactions.
+4.get the sqljdbc_xa.dll to binn folder
+E:\MsSql-Install\sqljdbc_8.2.2.0_enu\sqljdbc_8.2\enu\xa
+5.run the xa_install.sql which comes with download of the sqljdbc_xa
+
+-> ensure the run thru the master and after executing the script, check the ROLE:SQLJDBCXaUser role is created.
+6. enable the tcp/ip protocol.
+7. Run 
+
+	sip_ant.bat create_sytem
+	sip_ant.bat create_ors
+	sip_ant.bat import_system
+	sip_ant.bat create_bpm
+
+
+
+
+
+===CREATING DATA STORES====
+
+1. ACTIVEVOS:
+cd D:\Infa MDM Softwares\MDM 10.4 DataBase\Informatica_MDM_10.4_GA_DATABASE_FILES\database\bin
+sip_ant.bat create_bpm
+
+2. Intall jboss :
+	path :D:\MSSQL\EAP_7.2
+	username : admin
+	pwd :admin
+	avos user : avosamdin
+	pwd :avosadmin
+	group=abAdmin
+	
+	jboss: jbossadmin
+	pwd :jbossadmin
+3. db
+
+
+jboss changes :
+
+1. post-max set to 9000000
+2.
+D:\MSSQL\EAP_7.2\bin>jboss-cli.bat
+You are disconnected at the moment. Type 'connect' to connect to the server or 'help' for the list of supported commands.
+[disconnected /] /subsystem=transactions:write-attribute(name=default-timeout,value=<3600>)
+No connection to the controller.
+
+[disconnected /] connect
+The controller is not available at localhost:9990: java.net.ConnectException: WFLYPRT0053: Could not connect to r
+emote+http://localhost:9990. The connection failed: WFLYPRT0053: Could not connect to remote+http://localhost:9990. The conn
+ection failed: Connection refused: no further information
+
+[disconnected /] connect
+[standalone@localhost:9990 /] /subsystem=transactions:write-attribute(name=default-timeout,value=<3600>)
+{
+    "outcome" => "failed",
+    "failure-description" => "WFLYCTL0097: Wrong type for 'default-timeout'. Expected [INT] but was STRING. Couldn't convert
+ \"<3600>\" to [INT]",
+    "rolled-back" => true
+}
+
+[standalone@localhost:9990 /] /subsystem=transactions:write-attribute(name=default-timeout,value=<"3600">)
+{
+    "outcome" => "failed",
+    "failure-description" => "WFLYCTL0097: Wrong type for 'default-timeout'. Expected [INT] but was STRING. Couldn't convert
+ \"<\\\"3600\\\">\" to [INT]",
+    "rolled-back" => true
+}
+
+[standalone@localhost:9990 /] /subsystem=transactions:write-attribute(name=default-timeout,value=3600)
+{"outcome" => "success"}
+
+[standalone@localhost:9990 /] /subsystem=undertow/server=default-server/<listener type>=<listener name>/:write-
+'<listenertype>' is not a valid node type name.
+
+[standalone@localhost:9990 /] attribute(name=max-post-size,value=
+'attribute(name=max-post-size,value=' is not a valid operation name.
+
+[standalone@localhost:9990 /] /subsystem=undertow/server=default-server/<listener type>=<listener name>/:write-
+'<listenertype>' is not a valid node type name.
+
+[standalone@localhost:9990 /] attribute(name=max-post-size,value=
+'attribute(name=max-post-size,value=' is not a valid operation name.
+
+=max-post-size,value=20000000)/subsystem=undertow/server=default-server/<listener type>=<listener name>/:write-attribute(name
+'<listenertype>' is not a valid node type name.
+
+[standalone@localhost:9990 /] /subsystem=undertow/server=default-server/<listener type>=<listener name>/:write-attribute(name=max-post-size,value=20000000)
+'<listenertype>' is not a valid node type name.
+
+[standalone@localhost:9990 /] /subsystem=undertow/server=default-server/<listener type>=<listener name>/:write-attribute(name=max-post-size,value=20000000)
+'<listenertype>' is not a valid node type name.
+
+[standalone@localhost:9990 /] /socket-binding-group=standard-sockets/socket-binding=remoting:add(port=4447)
+{"outcome" => "success"}
+
+[standalone@localhost:9990 /] exit
+Press any key to continue . . .
+
+D:\MSSQL\EAP_7.2\bin>add-user.bat
+
+What type of user do you wish to add?
+ a) Management User (mgmt-users.properties)
+ b) Application User (application-users.properties)
+(a): b
+
+Enter the details of the new user to add.
+Using realm 'ApplicationRealm' as discovered from the existing property files.
+Username : avosadmin
+Password recommendations are listed below. To modify these restrictions edit the add-user.properties configuration file.
+ - The password should be different from the username
+ - The password should not be one of the following restricted values {root, admin, administrator}
+ - The password should contain at least 8 characters, 1 alphabetic character(s), 1 digit(s), 1 non-alphanumeric symbol(s)
+Password :
+WFLYDM0098: The password should be different from the username
+Are you sure you want to use the password entered yes/no? yes
+Re-enter Password :
+What groups do you want this user to belong to? (Please enter a comma separated list, or leave blank for none)[  ]: abAdmin
+About to add user 'avosadmin' for realm 'ApplicationRealm'
+Is this correct yes/no? yes
+Added user 'avosadmin' to file 'D:\MSSQL\EAP_7.2\standalone\configuration\application-users.properties'
+Added user 'avosadmin' to file 'D:\MSSQL\EAP_7.2\domain\configuration\application-users.properties'
+Added user 'avosadmin' with groups abAdmin to file 'D:\MSSQL\EAP_7.2\standalone\configuration\application-roles.properties'
+Added user 'avosadmin' with groups abAdmin to file 'D:\MSSQL\EAP_7.2\domain\configuration\application-roles.properties'
+Is this new user going to be used for one AS process to connect to another AS process?
+e.g. for a slave host controller connecting to the master or for a Remoting connection for server to server EJB calls.
+yes/no? yes
+To represent the user add the following to the server-identities definition <secret value="YXZvc2FkbWlu" />
+Press any key to continue . . .
+
+D:\MSSQL\EAP_7.2\bin>
+
+
+====PS====
+ === =jboss=== 
+ enable the remote port 4447 in the eap7.1 onwards
+			To resolve this issue, it is mandatory that the remoting port is added to standalone-full.xml. This can be done by running the following commands through the jboss-cli script:
+			1. Navigate to the <EAP_HOME>/bin directory on a terminal and execute jboss-cli.bat which comes with jboss 7.1 installtion (or jboss-cli.sh on Linux).
+			2. After launching, enter the command connect and it would report connected to the management port such as localhost@9990.
+			3. Run the following commands: (Refer to the installation guide, these steps are mentioned in the guide as well)
+			/socket-binding-group=standard-sockets/socket-binding=remoting:add(port=4447)
+			/subsystem=remoting/connector=remoting-connector:add(socket-binding=remoting)​ 
+			4. Run the command reload to enable the configuration
+			5. Enter quit to exit the CLI.
+				
+1. Create a dba user.
+helful url :https://www.microfocus.com/documentation/silk-test/200/en/silktestworkbench-help-en/SILKTEST-7FFBB86A-CREATINGNEWSQLSERVERADMINUSER-TSK.html
+
+2. You need to enable SA. Else login will fail no matter what.
+
+3. Make sure you give the correct path for the datafile, eles it will fail.
+
+
+
+
+
+======installing the hub server ====
+
+start server  :
+
+D:\MSSQL\EAP_7.2\bin>standalone.bat -c standalone-full.xml -b 0.0.0.0 -Djboss.as.management.blocking.timeout=5000
+Calling "D:\MSSQL\EAP_7.2\bin\standalone.conf.bat"
+Setting JAVA property to "C:\Program Files\Zulu\zulu-8\bin\java"
+===============================================================================
+
+  JBoss Bootstrap Environment
+
+  JBOSS_HOME: "D:\MSSQL\EAP_7.2"
+
+  JAVA: "C:\Program Files\Zulu\zulu-8\bin\java"
+  
+  
+ -- 
+
+D:\Infa MDM Softwares
+
+
+
+postinstall script:
+D:\MSSQL\EAP_7.2\bin>standalone.bat -c standalone-full.xml -b 0.0.0.0 -Djboss.as.management.blocking.timeout=5000
+postInstallSetup.bat -Ddatabase.password="!!cmx!!"  -Davos.username="avosadmin" -Davos.password="avosadmin" -Davos.jdbc.database.password="mdmdba" -Davos.jdbc.database.username="mdmdba"
+
+postinstall avos:
+postInstallSetup.bat -Ddatabase.password="!!cmx!!" -Davos.username="avosadmin" -Davos.password="avosadmin"
